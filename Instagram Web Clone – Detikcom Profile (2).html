@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Instagram Web Clone – Detikcom Profile</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lucide-react@0.383.0/dist/umd/lucide-react.min.js"></script>
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html,body{background:#000;margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#f5f5f5}
+.pop{animation:pop .8s ease forwards}@keyframes pop{0%{transform:scale(0);opacity:0}30%{transform:scale(1.2);opacity:1}70%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}.fade{animation:fade .2s ease}@keyframes fade{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+const P={
+Instagram:'<rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>',
+Home:'<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+Search:'<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+Compass:'<circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>',
+Clapperboard:'<path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/>',
+Send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+Heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+PlusSquare:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8"/><path d="M12 8v8"/>',
+Menu:'<line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/>',
+User:'<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+MoreHorizontal:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+UserPlus:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/>',
+Link:'<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+Globe:'<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>',
+Grid3x3:'<rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/>',
+UserSquare:'<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M7 21v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2"/>',
+Layers:'<path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/>',
+Play:'<polygon points="6 3 20 12 6 21 6 3"/>',
+X:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+ChevronLeft:'<path d="m15 18-6-6 6-6"/>',
+ChevronRight:'<path d="m9 18 6-6-6-6"/>',
+MessageCircle:'<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+Bookmark:'<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>',
+Smile:'<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/>',
+Tv:'<rect width="20" height="15" x="2" y="7" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
+ShoppingCart:'<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+Users:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+Megaphone:'<path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/>',
+MapPin:'<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
+Tag:'<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>'};
+const L=Object.fromEntries(Object.keys(P).map(n=>[n,({size=24,fill="none",color="currentColor",strokeWidth=2,className,style})=><svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={color} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className} style={style} dangerouslySetInnerHTML={{__html:P[n]}}/>]));
+const BLUE="#0095f6";
+
+/* ---------- DATA DUMMY ---------- */
+const PROFILE={username:"detikcom",posts:"80.401",followers:5100000,following:41,
+ cat:"Media/news company",
+ bio:"Media online nomor 1 di Indonesia | Hadir untuk memberikan validasi & referensi informasi Anda.\nBaca berita terupdate...",
+ link:"lynk.id/detikcom",web:"detikcom",
+ followedBy:"senyorittaa, arcameiji + 3 more"};
+const PAL=[["#3a2a1e","#0a0a0a"],["#5b7fa6","#2b4468"],["#1f3a6b","#0d1b36"],["#555","#141414"],["#2a2a1a","#0c0c08"],["#7a2e2e","#1a0a0a"],["#1d5a4a","#071a15"],["#4a3a7a","#120d24"],["#8a5a1e","#1a1005"]];
+const T=[
+ ["STOP KARHUTLA",["Karhutla di Papua Selatan Masih Jadi Perhatian, 379 Titik Panas Terdeteksi","Luas Lahan Terbakar Tembus 695 Hektare, Kualitas Udara Menurun","Indeks Kualitas Udara (AQI) 178: Tidak Sehat","Pantau Perkembangan Karhutla di detik.com/stopkarhutla"]],
+ ["TERMASUK PEMBATASAN",["Pengumuman! OJP Hapus Denda Pajak hingga 100%, Ini Syaratnya","Cek Daftar Wilayah yang Ikut Program","Cara Mengajukan Online"]],
+ ["TEKNOLOGI",["Intip Bengkel Pembuatan Nov Innova Zenix","Mesin Hybrid Lebih Irit","Fitur Keselamatan Baru","Harga Resmi Diumumkan","Kapan Mulai Dikirim?"]],
+ ["INTERNASIONAL",["Warga Inggris Diminta Stok Makanan dan Air, Bersiap Perang dalam 1.000 Hari"]],
+ ["NASIONAL",["Jemaah Umrah Tetap Berlibadah di Masjidil Haram meski Diguyur Hujan"]],
+ ["#YANGSERU",["Curhatan #MandarMotorimbonesia Viral Lo dan Menanyakan Hadiahnya"]],
+ ["EKONOMI",["Rupiah Menguat Tipis, IHSG Ditutup Hijau","Saham Perbankan Jadi Penopang"]],
+ ["OLAHRAGA",["Timnas Menang Dramatis di Menit Akhir"]],
+ ["KESEHATAN",["Waspada Cuaca Ekstrem, Ini Tips Menjaga Imun"]]
+];
+const T2=[['POLITIK',['DPR Sahkan RUU Baru, Ini Poin Pentingnya','Suara Fraksi di Rapat Paripurna','Tanggapan Pemerintah','Apa Dampaknya bagi Warga?']],['PENDIDIKAN',['Kurikulum Baru Mulai Diterapkan Tahun Ajaran Depan','Mata Pelajaran yang Berubah','Kesiapan Guru di Daerah']],['LINGKUNGAN',['Banjir Rob Rendam Pesisir Utara Jakarta','Wilayah Terdampak','Imbauan BMKG','Posko Pengungsian']]];
+const SEQ={'STOP KARHUTLA':['fire','world','city','health','money'],'TERMASUK PEMBATASAN':['tax','money','tech','city'],'TEKNOLOGI':['tech','health','money','tax','city','world'],'INTERNASIONAL':['world','city','money'],'NASIONAL':['umrah','flood','city','health'],'#YANGSERU':['tech','sport','world','city','money'],'EKONOMI':['money','city','tax'],'OLAHRAGA':['sport','city','health','world'],'KESEHATAN':['health','school','city','money','sport','tech'],'POLITIK':['vote','world','tax','city','money'],'PENDIDIKAN':['school','tech','money'],'LINGKUNGAN':['flood','city','health','world']};
+const SL=[
+[['fire','Karhutla di Papua Selatan Masih Jadi Perhatian, 379 Titik Panas Terdeteksi'],['world','Peta Sebaran Titik Panas: Papua Selatan Jadi Sorotan BNPB'],['city','Asap Selimuti Permukiman, Kualitas Udara Menurun'],['health','Warga Diimbau Pakai Masker, Waspada ISPA'],['money','Kerugian Ekonomi Akibat Karhutla Capai Miliaran Rupiah']],
+[['tax','Pengumuman! OJP Hapus Denda Pajak hingga 100%, Ini Syaratnya'],['money','Ini Besaran Denda yang Dihapus Selama Program Berlangsung'],['tech','Cara Mengajukan Online Lewat Aplikasi Resmi'],['city','Kantor Pelayanan Pajak Buka Layanan Tambahan Akhir Pekan']],
+[['tech','Intip Bengkel Pembuatan Nov Innova Zenix'],['tax','Harga Resmi dan Pajak Innova Zenix Diumumkan'],['money','Mesin Hybrid Lebih Irit, Hemat Biaya Bensin'],['health','Fitur Keselamatan Baru: 7 Airbag dan Sensor Pintar'],['city','Diuji di Jalanan Kota, Nyaman untuk Macet'],['world','Siap Diekspor ke Berbagai Negara']],
+[['world','Warga Inggris Diminta Stok Makanan dan Air, Bersiap Perang dalam 1.000 Hari'],['city','Pemerintah Inggris Siapkan Rencana Darurat Perkotaan'],['money','Harga Bahan Pokok Mulai Naik di Pasar Eropa']],
+[['umrah','Jemaah Umrah Tetap Berlibadah di Masjidil Haram meski Diguyur Hujan'],['flood','Hujan Deras Guyur Makkah, Area Mataf Tetap Dibuka'],['city','Petugas Atur Arus Jemaah di Sekitar Masjidil Haram'],['health','Jemaah Diimbau Jaga Kesehatan Selama Cuaca Basah']],
+[['tech','Curhatan #MandarMotorimbonesia Viral, Warganet Tanya Hadiahnya'],['sport','Warganet Heboh Bahas Aksi Balap Motor Terbaru'],['world','Tren Ini Ramai Dibahas dari Indonesia sampai Luar Negeri'],['city','Komunitas Motor Kumpul di Jakarta Akhir Pekan'],['money','Hadiah Jutaan Rupiah Jadi Perbincangan']],
+[['money','Rupiah Menguat Tipis, IHSG Ditutup Hijau'],['city','Saham Perbankan Jadi Penopang Pasar Hari Ini'],['tax','Pemerintah Siapkan Insentif Pajak untuk Pelaku Usaha']],
+[['sport','Timnas Menang Dramatis di Menit Akhir'],['city','Ribuan Suporter Padati Stadion Gelora Bung Karno'],['health','Pelatih Puji Kondisi Fisik Pemain'],['world','Timnas Siap Hadapi Laga Internasional Berikutnya']],
+[['health','Waspada Cuaca Ekstrem, Ini Tips Menjaga Imun'],['school','Dokter Edukasi Warga tentang Pola Hidup Sehat'],['city','Polusi Kota Tingkatkan Risiko Gangguan Napas'],['money','Biaya Berobat Bisa Dihemat dengan Pencegahan'],['sport','Olahraga Ringan 30 Menit Tiap Hari Bantu Imun'],['tech','Aplikasi Kesehatan Bantu Pantau Kondisi Harian']],
+[['vote','DPR Sahkan RUU Baru, Ini Poin Pentingnya'],['world','Pandangan Negara Lain soal Aturan Baru Ini'],['tax','Aturan Pajak dalam RUU Jadi Sorotan Fraksi'],['city','Warga Gelar Aksi Damai di Depan Gedung DPR'],['money','Dampak Anggaran: Ini Hitungan Pemerintah']],
+[['school','Kurikulum Baru Mulai Diterapkan Tahun Ajaran Depan'],['tech','Pembelajaran Digital Jadi Bagian Mata Pelajaran'],['money','Anggaran Pelatihan Guru Dinaikkan Tahun Ini']],
+[['flood','Banjir Rob Rendam Pesisir Utara Jakarta'],['city','Permukiman Warga Terendam, Aktivitas Terganggu'],['health','Posko Kesehatan Dibuka untuk Warga Terdampak'],['world','Perubahan Iklim Disebut Pemicu Naiknya Air Laut']]
+];
+const LOC=[
+['Merauke, Papua Selatan','Papua Selatan','Merauke, Papua Selatan','Boven Digoel, Papua Selatan','Jakarta'],
+['Jakarta','Jakarta','Jakarta','Surabaya, Jawa Timur'],
+['Karawang, Jawa Barat','Jakarta','Jakarta','Jakarta Selatan','Bandung, Jawa Barat','Tanjung Priok, Jakarta'],
+['London, Inggris','Manchester, Inggris','Brussel, Belgia'],
+['Makkah, Arab Saudi','Makkah, Arab Saudi','Masjidil Haram, Makkah','Makkah, Arab Saudi'],
+['Jakarta','Mandalika, Lombok','Jakarta','Bandung, Jawa Barat','Jakarta'],
+['Bursa Efek Indonesia, Jakarta','Jakarta','Jakarta'],
+['Stadion GBK, Jakarta','Stadion GBK, Jakarta','Jakarta','Kuala Lumpur, Malaysia'],
+['Jakarta','Surabaya, Jawa Timur','Jakarta Pusat','Semarang, Jawa Tengah','Bandung, Jawa Barat','Jakarta'],
+['Gedung DPR, Senayan','Jakarta','Jakarta','Gedung DPR, Senayan','Jakarta'],
+['Jakarta','Bandung, Jawa Barat','Jakarta'],
+['Muara Baru, Jakarta Utara','Penjaringan, Jakarta Utara','Jakarta Utara','Jakarta']
+];
+const NS=[5,4,6,3,4,5,3,4,6,5,3,4];
+const XT=['Latar Belakang','Data Terbaru','Tanggapan Pakar','Dampak ke Masyarakat','Langkah Selanjutnya','Kesimpulan'];
+const NAMES=["ridwanwahidhambali","sam_8068","umyil_ibuk","ammaca.ra","ivan_ikhwanto","daarinahmaa","nurul.aini","bayu_pratama"];
+const TXT=["Ya Allah 💗","Warga Papua Selatan hadir 🧡","ya memang Rencana Nasional bukan Bencana Nasional 😅","papua masih membara, bantu up terus jgn beralihkan 🙏","Sawit lagi ini","Nah ginilah min naikkan berita yg betulan berita","Semoga cepat teratasi","Terima kasih infonya min"];
+const POSTS=T.concat(T2).map((t,i)=>({id:i+1,tag:t[0],likes:[50600,22300,18400,9200,7100,262,5400,3300,2100,4200,12800,6600][i],
+ slides:SL[i].map((x,k)=>({kind:x[0],title:x[1],loc:LOC[i][k],tag:t[0],k,c:PAL[(i+k)%PAL.length]})),
+ caption:i>0?SL[i][0][1]+'. Baca selengkapnya di detik.com atau klik link yang ada di bio.':"Kebakaran hutan dan lahan (karhutla) di Papua Selatan masih menjadi perhatian BNPB. Berdasarkan data terbaru, luas area yang terbakar tercatat mencapai 695 hektare dengan 379 titik panas.\n\nPantau perkembangan dan informasi selengkapnya di detik.com/stopkarhutla atau klik link yang ada di bio",
+ comments:NAMES.slice(0,6).map((n,j)=>({u:n,t:TXT[(j+i)%TXT.length],time:`${j+1}h`,likes:(j*7+i*3)%24}))}));
+const HL=["Yang Seru","yang Recom...","Yang Kolabor...","yang Baru","yang Cuan"];
+const HS=[
+ [['sport','Timnas Menang Dramatis di Menit Akhir'],['tech','Motor Listrik Viral Jadi Rebutan Anak Muda'],['world','Momen Unik dari Berbagai Penjuru Dunia']],
+ [['tech','Rekomendasi Mobil Hybrid Irit 2026'],['health','Tips Jaga Imun Saat Cuaca Ekstrem'],['umrah','Rekomendasi Paket Umrah Hemat']],
+ [['world','Kolaborasi detikcom dengan Media Global'],['tax','Kolaborasi Program Pajak bersama Ditjen Pajak'],['health','Kolaborasi Edukasi Kesehatan bersama Kemenkes']],
+ [['fire','Berita Baru: Karhutla Papua Selatan Terpantau'],['tax','Aturan Baru: Denda Pajak Dihapus'],['tech','Rilis Baru: Innova Zenix Hybrid']],
+ [['money','Rupiah Menguat, IHSG Ditutup Hijau'],['tax','Cara Hemat Pajak, Cuan Lebih Banyak'],['money','Saham Perbankan Jadi Penopang Cuan']]
+];
+const fmt=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n.toLocaleString("id-ID");
+
+/* ---------- STORE (localStorage aman) ---------- */
+function useStore(){
+ const init={following:false,liked:{},saved:{},added:{},cliked:{},custom:[],msgs:[]};
+ const [s,set]=useState(()=>{try{return {...init,...JSON.parse(localStorage.getItem("igclone")||"{}")}}catch(e){return init}});
+ useEffect(()=>{try{localStorage.setItem("igclone",JSON.stringify(s))}catch(e){}},[s]);
+ return [s,set];
+}
+
+/* ---------- KOMPONEN ---------- */
+const Verified=({s=14})=><svg width={s} height={s} viewBox="0 0 24 24" className="inline shrink-0 align-[-2px]"><path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z" fill={BLUE}/><path d="m9 12 2 2 4-4" stroke="#fff" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round"/></svg>;
+const Avatar=({s=150})=><div style={{width:s,height:s,background:"linear-gradient(135deg,#0072ff,#00c6ff)"}} className="rounded-full flex items-center justify-center shrink-0 border-[3px] border-black ring-2 ring-pink-500/70"><span style={{fontSize:s*.55}} className="font-bold text-white leading-none">d</span></div>;
+
+const KIND={"STOP KARHUTLA":"fire","TERMASUK PEMBATASAN":"tax","TEKNOLOGI":"tech","INTERNASIONAL":"world","NASIONAL":"umrah","#YANGSERU":"tech","POLITIK":"world","PENDIDIKAN":"tax","LINGKUNGAN":"fire","EKONOMI":"money","OLAHRAGA":"sport","KESEHATAN":"health"};
+const CARDS={fire:[["695 Hektare","Total luas lahan terbakar","#e8590c"],["AQI 178","Kualitas udara tidak sehat","#c92a2a"],["< 2.000 m","Jarak pandang menurun","#f59f00"]],tax:[["100%","Denda pajak dihapus","#1c7ed6"],["31 Des","Batas akhir program","#f59f00"],["Online","Bisa diajukan via aplikasi","#2f9e44"]],tech:[["2.0L Hybrid","Mesin lebih irit","#2f9e44"],["7 Airbag","Fitur keselamatan","#c92a2a"],["Rp 400 jt","Estimasi harga","#1c7ed6"]],world:[["1.000 hari","Estimasi persiapan","#c92a2a"],["3 hari","Stok makanan & air","#f59f00"],["UK Govt","Sumber imbauan","#1c7ed6"]],umrah:[["2 juta","Jemaah per bulan","#2f9e44"],["24 jam","Masjidil Haram dibuka","#1c7ed6"],["Hujan","Ibadah tetap berjalan","#f59f00"]],money:[["+0,4%","Rupiah menguat","#2f9e44"],["7.350","IHSG ditutup","#1c7ed6"],["Bank","Sektor penopang","#f59f00"]],sport:[["2-1","Skor akhir","#2f9e44"],["90+3'","Gol penentu","#f59f00"],["45.000","Penonton","#1c7ed6"]],health:[["3 tips","Jaga imun tubuh","#2f9e44"],["8 jam","Tidur cukup","#1c7ed6"],["2 L","Minum air","#f59f00"]]};
+Object.assign(CARDS,{city:[['24 jam','Pemantauan kondisi kota','#1c7ed6'],['Jabodetabek','Wilayah terdampak','#f59f00'],['Warga','Imbauan tetap waspada','#2f9e44']],flood:[['30 cm','Tinggi genangan','#1c7ed6'],['12 RW','Wilayah terdampak','#c92a2a'],['Posko','Tersedia di kelurahan','#2f9e44']],school:[['2026/27','Tahun ajaran baru','#1c7ed6'],['8 mapel','Mata pelajaran berubah','#f59f00'],['Guru','Pelatihan bertahap','#2f9e44']],vote:[['Paripurna','Rapat DPR','#c92a2a'],['7 fraksi','Suara terbagi','#f59f00'],['Pasal 12','Poin krusial','#1c7ed6']]});
+const fl=(x,h,w=26)=>`M${x} 330 C${x-w} 330 ${x-w} ${330-h*.5} ${x} ${330-h} C${x+4} ${330-h*.5} ${x+w} 330 ${x+w} 330Z`;
+function Scene({kind,k}){
+ const o=k*37%120-60;
+ return <svg viewBox="0 0 400 500" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full" style={{filter:`hue-rotate(${k*14}deg)`}}>
+  <defs>
+   <linearGradient id={"sky"+kind} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor={{fire:"#1a0b05",tax:"#17325e",tech:"#1b1b2b",world:"#0b2a4a",umrah:"#0c1a2e",money:"#0d2b22",sport:"#0b3d1e",health:"#12304a"}[kind]}/><stop offset="1" stopColor={{fire:"#a0360d",tax:"#5b8fd0",tech:"#6a6a88",world:"#2b6aa8",umrah:"#c98a3c",money:"#2f8a6a",sport:"#1f8a3c",health:"#3a8fc7"}[kind]}/></linearGradient>
+   <radialGradient id="gl"><stop offset="0" stopColor="#ffd27a"/><stop offset="1" stopColor="#ffd27a" stopOpacity="0"/></radialGradient>
+  </defs>
+  <rect width="400" height="500" fill={`url(#sky${kind})`}/>
+  {kind==="fire"&&<g>
+   <circle cx={300+o/3} cy="230" r="120" fill="url(#gl)" opacity=".7"/><circle cx={300+o/3} cy="230" r="34" fill="#ffb347"/>
+   {[0,1,2,3,4,5].map(i=><circle key={i} cx={60+i*66+o/2} cy={150+(i%3)*30} r={50+i*6} fill="#222" opacity=".35"/>)}
+   <path d={`M0 330 Q100 ${270+o/4} 200 320 T400 300 V500 H0Z`} fill="#140a06"/>
+   {[40,95,150,215,270,330,370].map((x,i)=><g key={x}><path d={fl(x,60+(i*23+k*17)%70,22)} fill="#ff6a00"/><path d={fl(x,34+(i*13)%30,12)} fill="#ffd43b"/></g>)}
+   {[50,130,210,300,360].map((x,i)=><path key={x} d={`M${x} 380 l-12 40 h24Z M${x} 355 l-9 35 h18Z`} fill="#0a0503"/>)}
+  </g>}
+  {kind==='city'&&<g><rect width='400' height='500' fill='#101626'/><circle cx='310' cy='110' r='38' fill='#f4e7b0'/>
+   {[[20,200,50],[75,150,60],[140,240,45],[190,130,70],[265,190,55],[325,170,60]].map(([x,h,w],i)=><g key={i}><rect x={x} y={400-h} width={w} height={h} fill='#1d2a45'/>{Array.from({length:Math.floor(h/26)}).map((_,r)=><rect key={r} x={x+8} y={400-h+12+r*26} width={w-16} height='7' fill='#ffd866' opacity={(r+i)%3?.8:.2}/>)}</g>)}
+   <rect y='400' width='400' height='100' fill='#0a0e18'/>{[0,1,2,3].map(i=><rect key={i} x={i*110+o/4} y='445' width='60' height='6' fill='#aaa'/>)}</g>}
+  {kind==='flood'&&<g><rect width='400' height='500' fill='#14283f'/>
+   {[60,160,260,340].map((x,i)=><ellipse key={i} cx={x} cy={90+i*8} rx='62' ry='28' fill='#3b4a60'/>)}
+   {Array.from({length:28}).map((_,i)=><line key={i} x1={i*15} y1={140+(i%5)*20} x2={i*15-8} y2={172+(i%5)*20} stroke='#8cc8ff' opacity='.6'/>)}
+   {[40,160,280].map(x=><g key={x}><rect x={x} y='300' width='76' height='70' fill='#c9b79c'/><path d={`M${x-6} 300 L${x+38} 258 L${x+82} 300Z`} fill='#8a3a2a'/></g>)}
+   <path d='M0 345 Q50 328 100 345 T200 345 T300 345 T400 345 V500 H0Z' fill='#2b7fc0' opacity='.92'/><path d='M0 390 Q60 375 120 390 T240 390 T360 390 T480 390 V500 H0Z' fill='#1d5f9a'/></g>}
+  {kind==='school'&&<g><rect width='400' height='500' fill='#1a2a3a'/>
+   <rect x='40' y='90' width='320' height='190' rx='6' fill='#1f5b45' stroke='#8a5a2b' strokeWidth='10'/><text x='200' y='195' fontSize='50' fontWeight='700' textAnchor='middle' fill='#fff' opacity='.9'>A+B=C</text><line x1='80' x2='200' y1='230' y2='230' stroke='#fff' opacity='.5' strokeWidth='3'/>
+   <rect x='90' y='340' width='230' height='30' fill='#c92a2a'/><rect x='100' y='370' width='220' height='28' fill='#1c7ed6'/><rect x='95' y='398' width='225' height='26' fill='#f59f00'/>
+   <g transform={`rotate(-20 320 330) translate(${o/6} 0)`}><rect x='290' y='300' width='110' height='16' fill='#fcc419'/><path d='M290 300 L270 308 L290 316Z' fill='#f1c9a0'/></g></g>}
+  {kind==='vote'&&<g><rect width='400' height='500' fill='#2a1a3a'/>
+   {[0,1,2,3,4,5,6,7].map(i=><path key={i} d={`M${i*50} 0 L${i*50+25} 40 L${i*50+50} 0Z`} fill={i%2?'#f1f3f5':'#e03131'}/>)}
+   <g transform={`rotate(${-8+o/20} 200 160)`}><rect x='165' y='110' width='72' height='110' fill='#f1f3f5'/><path d='M180 150 l12 14 l24 -30' stroke='#2f9e44' strokeWidth='7' fill='none' strokeLinecap='round'/><rect x='178' y='185' width='46' height='6' fill='#adb5bd'/></g>
+   <rect x='110' y='220' width='180' height='160' rx='10' fill='#c92a2a'/><rect x='150' y='214' width='100' height='12' rx='4' fill='#111'/><circle cx='200' cy='310' r='30' fill='#f1f3f5' opacity='.9'/><rect y='420' width='400' height='40' fill='#e03131'/><rect y='460' width='400' height='40' fill='#f1f3f5'/></g>}
+  {kind==="tax"&&<g>
+   <rect x={90+o/6} y="110" width="190" height="250" rx="10" fill="#f1f5fb" transform="rotate(-6 200 230)"/>
+   {[0,1,2,3,4,5].map(i=><rect key={i} x={110+o/6} y={140+i*28} width={i%2?110:150} height="10" rx="5" fill="#9db4d6" transform="rotate(-6 200 230)"/>)}
+   <circle cx="290" cy="310" r="52" fill="#f59f00"/><text x="290" y="322" fontSize="34" fontWeight="900" textAnchor="middle" fill="#fff">0%</text>
+   {[0,1,2,3].map(i=><ellipse key={i} cx="90" cy={400-i*14} rx="46" ry="14" fill="#fcc419" stroke="#e8890c" strokeWidth="3"/>)}
+  </g>}
+  {kind==="tech"&&<g>
+   <rect y="360" width="400" height="140" fill="#15151f"/>{[0,1,2,3].map(i=><rect key={i} x={i*110-20+o/4} y="430" width="60" height="6" fill="#ddd"/>)}
+   <path d="M40 340 L70 290 Q80 270 110 268 L240 262 Q285 262 310 296 L350 320 Q370 330 366 346 V362 H40Z" fill="#d9dde8"/>
+   <path d="M118 278 L240 273 Q268 274 286 298 H110Z" fill="#223"/>
+   <circle cx="110" cy="362" r="30" fill="#111"/><circle cx="110" cy="362" r="14" fill="#999"/><circle cx="300" cy="362" r="30" fill="#111"/><circle cx="300" cy="362" r="14" fill="#999"/>
+   <rect x="348" y="318" width="18" height="10" rx="4" fill="#ffe066"/>
+  </g>}
+  {kind==="world"&&<g>
+   <circle cx="200" cy="250" r="130" fill="#1a5fa0" stroke="#8cc8ff" strokeWidth="3"/>
+   {[40,85,125].map(rx=><ellipse key={rx} cx="200" cy="250" rx={rx} ry="130" fill="none" stroke="#8cc8ff" opacity=".5"/>)}{[-70,-25,25,70].map(dy=><line key={dy} x1="72" x2="328" y1={250+dy} y2={250+dy} stroke="#8cc8ff" opacity=".4"/>)}
+   <path d={`M150 ${200+o/5} q30 -20 50 0 q20 30 -10 50 q-40 10 -40 -50Z M230 280 q40 -10 50 20 q-20 30 -50 10Z`} fill="#3fae6a"/>
+   <path d="M300 120 l40 90 h-80Z" fill="#e03131" stroke="#fff" strokeWidth="4"/><rect x="296" y="150" width="8" height="30" fill="#fff"/><circle cx="300" cy="195" r="5" fill="#fff"/>
+  </g>}
+  {kind==="umrah"&&<g>
+   <circle cx="200" cy="150" r="70" fill="url(#gl)" opacity=".5"/>
+   {[60,340].map(x=><g key={x}><rect x={x-9} y="150" width="18" height="200" fill="#e8dcc0"/><path d={`M${x-14} 150 L${x} 110 L${x+14} 150Z`} fill="#c9a45a"/><rect x={x-13} y="210" width="26" height="8" fill="#c9a45a"/></g>)}
+   <rect x="150" y="230" width="100" height="110" fill="#111"/><rect x="150" y="252" width="100" height="10" fill="#d4a72c"/>
+   <ellipse cx="200" cy="350" rx="170" ry="46" fill="#e8dcc0" opacity=".85"/>
+   {Array.from({length:60}).map((_,i)=><circle key={i} cx={200+Math.cos(i*.9)*(40+(i%6)*24)} cy={350+Math.sin(i*.9)*(10+(i%6)*6)} r="4" fill={i%3?"#fff":"#2b2b2b"}/>)}
+   {[0,1,2,3,4,5,6].map(i=><line key={i} x1={20+i*58+o/3} y1="0" x2={5+i*58+o/3} y2="500" stroke="#9ec5ff" opacity=".25"/>)}
+  </g>}
+  {kind==="money"&&<g>
+   {[60,100,80,150,130,200,250].map((h,i)=><rect key={i} x={30+i*50} y={400-h-o/4} width="32" height={h+o/4} rx="4" fill={i>3?"#51cf66":"#2f9e6a"}/>)}
+   <polyline points={[60,100,80,150,130,200,250].map((h,i)=>`${46+i*50},${380-h-o/4}`).join(" ")} fill="none" stroke="#ffd43b" strokeWidth="5"/>
+   <circle cx="330" cy="130" r="44" fill="#fcc419"/><text x="330" y="146" fontSize="44" fontWeight="900" textAnchor="middle" fill="#8a5a00">Rp</text>
+  </g>}
+  {kind==="sport"&&<g>
+   <rect y="250" width="400" height="250" fill="#1b7a36"/><rect x="40" y="290" width="320" height="170" fill="none" stroke="#fff" strokeWidth="3" opacity=".7"/><line x1="200" y1="290" x2="200" y2="460" stroke="#fff" strokeWidth="3" opacity=".7"/><circle cx="200" cy="375" r="34" fill="none" stroke="#fff" strokeWidth="3" opacity=".7"/>
+   {Array.from({length:40}).map((_,i)=><circle key={i} cx={(i*47)%400} cy={60+(i%5)*38} r="6" fill={["#e03131","#fff","#fcc419"][i%3]} opacity=".6"/>)}
+   <circle cx={230+o/2} cy="230" r="38" fill="#fff"/><path d={`M${230+o/2} 205 l20 14 l-8 24 h-24 l-8 -24Z`} fill="#222"/>
+  </g>}
+  {kind==="health"&&<g>
+   <path d="M200 110 L320 150 V270 Q320 360 200 410 Q80 360 80 270 V150Z" fill="#e7f5ff" opacity=".95"/>
+   <rect x="182" y="190" width="36" height="120" rx="8" fill="#e03131"/><rect x="140" y="232" width="120" height="36" rx="8" fill="#e03131"/>
+   {[0,1,2,3,4].map(i=><circle key={i} cx={60+i*70} cy={90+(i%2)*40+o/6} r="14" fill="#a5d8ff" opacity=".5"/>)}
+  </g>}
+ </svg>;
+}
+function Slide({s,small}){
+ const kind=s.kind||KIND[s.tag]||"fire",cards=CARDS[kind],k=s.k||0;
+ return <div className="w-full h-full relative overflow-hidden flex flex-col justify-end select-none" style={{padding:small?"8px":"6%"}}>
+  <Scene kind={kind} k={k}/>
+  <div className="absolute inset-0" style={{background:"linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.05) 75%)"}}/>
+  <div className={"absolute font-black text-white "+(small?"top-2 right-2 text-[10px]":"top-[5%] right-[6%] text-2xl")}>detik<span className="font-extrabold">com</span></div>
+  {!small&&<div className="absolute top-[5%] left-[6%] w-11 h-11 rounded-full bg-black/60 border border-white/40 flex items-center justify-center text-[8px] font-bold text-center leading-tight">STOP<br/>BERITA</div>}
+  <div className="relative">
+   <span className={"inline-block font-bold text-white bg-[#1c3d7a] "+(small?"text-[7px] px-1 py-px mb-1":"text-xs px-2.5 py-1 mb-3")}>{s.tag}</span>{!small&&k===0&&s.loc&&<span className="inline-flex items-center gap-1 ml-2 mb-3 align-middle text-xs font-medium text-white/90 bg-black/50 backdrop-blur rounded px-2 py-1"><L.MapPin size={12}/>{s.loc}</span>}
+   <div className={"font-extrabold text-white leading-tight drop-shadow "+(small?"text-[10px] line-clamp-3":"text-xl md:text-[28px]")}>{s.title}</div>
+   {!small&&k>0&&<div className="mt-4 space-y-2">{cards.map((c,i)=><div key={i} className="flex items-center gap-3 bg-black/55 backdrop-blur rounded-lg p-2.5 border border-white/10"><div className="w-9 h-9 rounded-md flex items-center justify-center text-[11px] font-black" style={{background:c[2]}}>{i+1}</div><div className="min-w-0"><div className="text-sm font-bold">{c[0]}</div><div className="text-[11px] text-white/60">{c[1]}</div></div></div>)}</div>}
+   {!small&&<div className="mt-3 text-[9px] text-white/50 flex justify-between"><span>Sumber: data dummy</span><span>GESER UNTUK SELENGKAPNYA ›</span></div>}
+  </div>
+ </div>;
+}
+
+function Sidebar({go,page}){
+ const items=[["Home",L.Home],["Search",L.Search],["Explore",L.Compass],["Reels",L.Clapperboard],["Messages",L.Send],["Notifications",L.Heart],["Create",L.PlusSquare]];
+ return <>
+ <nav className="hidden md:flex fixed left-0 top-0 bottom-0 w-[72px] flex-col items-center py-5 gap-1 border-r border-neutral-800 bg-black z-30">
+  <button title="Instagram" className="p-3 mb-4 hover:bg-neutral-900 rounded-lg"><L.Instagram size={24}/></button>
+  {items.map(([n,I])=><button key={n} title={n} onClick={()=>go(n)} className="p-3 rounded-lg hover:bg-neutral-900 active:scale-95 transition"><I size={24} strokeWidth={page===n?2.8:1.8}/></button>)}
+  <button title="Profile" onClick={()=>go("Profile")} className="p-3 hover:bg-neutral-900 rounded-lg"><div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-cyan-400 text-[11px] font-bold flex items-center justify-center ring-1 ring-white">d</div></button>
+  <button title="More" onClick={()=>go("More")} className="p-3 mt-auto hover:bg-neutral-900 rounded-lg"><L.Menu size={24}/></button>
+ </nav>
+ <nav className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-black border-t border-neutral-800 flex justify-around py-3" style={{paddingBottom:"calc(.75rem + env(safe-area-inset-bottom,0px))"}}>
+  {[["Home",L.Home],["Search",L.Search],["Reels",L.Clapperboard],["Messages",L.Send],["Profile",L.User]].map(([n,I])=><button key={n} onClick={()=>go(n)}><I size={26}/></button>)}
+ </nav></>;
+}
+
+function Stories({idx,onClose}){
+ const [k,setK]=useState(0),[p,setP]=useState(0);
+ const slides=HS[idx].map((x,j)=>({title:x[1],kind:x[0],tag:HL[idx].toUpperCase(),k:j}));
+ useEffect(()=>{const t=setInterval(()=>setP(x=>x+2),100);return()=>clearInterval(t)},[]);
+ useEffect(()=>{if(p>=100){if(k<2){setK(k+1);setP(0)}else onClose()}},[p]);
+ const nav=d=>{const n=k+d;if(n<0||n>2)return n>2&&onClose();setK(n);setP(0)};
+ return <div className="fixed inset-0 z-50 bg-neutral-950 flex items-center justify-center fade">
+  <button onClick={onClose} className="absolute top-4 right-4 z-10"><L.X size={28}/></button>
+  <div className="relative h-[92vh] max-h-[860px] aspect-[9/16] max-w-full rounded-lg overflow-hidden">
+   <Slide s={slides[k]}/>
+   <div className="absolute top-2 left-2 right-2 flex gap-1">{[0,1,2].map(i=><div key={i} className="h-0.5 flex-1 bg-white/30 rounded"><div className="h-full bg-white rounded" style={{width:i<k?"100%":i===k?p+"%":"0"}}/></div>)}</div>
+   <div className="absolute top-5 left-3 flex items-center gap-2 text-sm font-semibold"><Avatar s={32}/>detikcom <span className="font-normal text-white/60">{k+1}j</span></div>
+   <div className="absolute inset-0 flex"><div className="w-1/3" onClick={()=>nav(-1)}/><div className="flex-1" onClick={()=>nav(1)}/></div>
+  </div></div>;
+}
+
+function Modal({post,store,setStore,onClose,onPrev,onNext,onFollow}){
+ const [i,setI]=useState(0),[txt,setTxt]=useState(""),[toast,setToast]=useState("");
+ const inp=useRef();const [burst,setBurst]=useState(0),[sh,setSh]=useState(false);
+ useEffect(()=>{document.body.style.overflow='hidden';return()=>{document.body.style.overflow=''}},[]);
+ const link=location.href.split('#')[0]+'#post-'+post.id;
+ const copy=async()=>{try{await navigator.clipboard.writeText(link)}catch(e){}flash('Link disalin ke clipboard');setSh(false)};
+ useEffect(()=>{setI(0)},[post.id]);
+ useEffect(()=>{const h=e=>{if(e.key==="Escape")onClose();if(e.key==="ArrowRight")setI(x=>Math.min(x+1,post.slides.length-1));if(e.key==="ArrowLeft")setI(x=>Math.max(x-1,0))};window.addEventListener("keydown",h);return()=>window.removeEventListener("keydown",h)},[post]);
+ const liked=!!store.liked[post.id],saved=!!store.saved[post.id];
+ const added=store.added[post.id]||[];
+ const all=[...added,...post.comments];
+ const flash=m=>{setToast(m);setTimeout(()=>setToast(""),1800)};
+ const upd=(k,v)=>setStore(s=>({...s,[k]:{...s[k],[post.id]:v}}));
+ const send=()=>{if(!txt.trim())return;upd("added",[{u:"kamu",t:txt.trim(),time:"Baru saja",likes:0},...added]);setTxt("")};
+ const n=post.slides.length;
+ return <div className="fixed inset-0 z-40 bg-black/80 flex items-center justify-center p-0 md:p-6 fade" onClick={onClose}>
+  <button className="absolute top-3 right-3 z-50" onClick={onClose}><L.X size={28}/></button>
+  <div onClick={e=>e.stopPropagation()} className="bg-black border border-neutral-800 md:rounded-md w-full max-w-[1100px] h-full md:h-[90vh] flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
+   <div className="relative md:flex-1 bg-black flex items-center justify-center shrink-0 md:min-w-0">
+    <div className="relative w-full md:w-auto md:h-full aspect-[4/5] md:max-w-full overflow-hidden" onDoubleClick={()=>{if(!liked)upd('liked',true);setBurst(x=>x+1)}} onTouchStart={e=>{window._tx=e.touches[0].clientX}} onTouchEnd={e=>{const d=e.changedTouches[0].clientX-window._tx;if(d<-40)setI(x=>Math.min(x+1,n-1));if(d>40)setI(x=>Math.max(x-1,0))}}>
+     {n>1&&<div className="absolute top-3 right-3 z-10 bg-black/60 text-xs px-2 py-0.5 rounded-full">{i+1}/{n}</div>}
+     {burst>0&&<L.Heart key={burst} size={96} fill='#fff' color='#fff' className='pop absolute inset-0 m-auto pointer-events-none z-10'/>}
+     <div className="flex h-full transition-transform duration-300" style={{width:`${n*100}%`,transform:`translateX(-${i*100/n}%)`}}>
+      {post.slides.map((s,k)=><div key={k} style={{width:`${100/n}%`}} className="h-full"><Slide s={s}/></div>)}
+     </div>
+     {i>0&&<button onClick={()=>setI(i-1)} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 text-black rounded-full p-1"><L.ChevronLeft size={18}/></button>}
+     {i<n-1&&<button onClick={()=>setI(i+1)} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 text-black rounded-full p-1"><L.ChevronRight size={18}/></button>}
+     {n>1&&<div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1">{post.slides.map((_,k)=><span key={k} onClick={()=>setI(k)} className={"w-1.5 h-1.5 rounded-full cursor-pointer "+(k===i?"bg-[#0095f6]":"bg-white/50")}/>)}</div>}
+    </div>
+   </div>
+   <div className="md:w-[400px] shrink-0 flex flex-col border-t md:border-t-0 md:border-l border-neutral-800 md:min-h-0">
+    <div className="flex items-center gap-3 p-4 border-b border-neutral-800">
+     <Avatar s={34}/><span className="font-semibold text-sm">detikcom <Verified/></span>
+     <span className="text-neutral-500">•</span>
+     <button onClick={onFollow} className={"text-sm font-semibold "+(store.following?"text-neutral-300":"text-[#0095f6]")}>{store.following?"Following":"Follow"}</button>
+     <L.MoreHorizontal size={20} className="ml-auto"/>
+    </div>
+    <div className="md:flex-1 md:overflow-y-auto p-4 space-y-4 text-sm">
+     <div className="flex gap-3"><Avatar s={34}/><div><span className="font-semibold">detikcom <Verified/></span> <span className="whitespace-pre-line">{post.caption}</span><div className="text-neutral-500 text-xs mt-2">1d</div></div></div>
+     {all.map((c,k)=>{const key=post.id+"-"+c.u+k+c.t;const cl=store.cliked[key];return <div key={key} className="flex gap-3">
+      <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-bold text-xs" style={{background:PAL[c.u.length%PAL.length][0]}}>{c.u[0].toUpperCase()}</div>
+      <div className="flex-1"><span className="font-semibold">{c.u}</span> {c.t}
+       <div className="text-neutral-500 text-xs mt-1 flex gap-3"><span>{c.time}</span><span>{c.likes+(cl?1:0)} likes</span><span>Reply</span></div></div>
+      <button onClick={()=>setStore(s=>({...s,cliked:{...s.cliked,[key]:!cl}}))}><L.Heart size={13} fill={cl?"#ff3040":"none"} color={cl?"#ff3040":"#a8a8a8"}/></button>
+     </div>})}
+    </div>
+    <div className="border-t border-neutral-800 p-4 relative">
+     <div className="flex items-center gap-4">
+      <button onClick={()=>upd("liked",!liked)} className="active:scale-90 transition"><L.Heart size={24} fill={liked?"#ff3040":"none"} color={liked?"#ff3040":"#fff"}/></button>
+      <button onClick={()=>inp.current.focus()}><L.MessageCircle size={24}/></button>
+      <button onClick={()=>setSh(true)}><L.Send size={24}/></button>
+      <button className="ml-auto" onClick={()=>{upd("saved",!saved);flash(saved?"Dihapus dari Saved":"Disimpan ke Saved")}}><L.Bookmark size={24} fill={saved?"#fff":"none"}/></button>
+     </div>
+     <div className="font-semibold text-sm mt-3">{(post.likes+(liked?1:0)).toLocaleString("id-ID")} likes</div>
+     <div className="text-[11px] text-neutral-500 mt-1">1 DAY AGO</div>
+     {toast&&<div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-neutral-800 text-xs px-3 py-2 rounded-md fade whitespace-nowrap">{toast}</div>}
+    </div>
+    <div className="border-t border-neutral-800 px-4 py-3 flex items-center gap-3">
+     <L.Smile size={22} className="text-neutral-400"/>
+     <input ref={inp} value={txt} onChange={e=>setTxt(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="Add a comment..." className="flex-1 bg-transparent outline-none text-sm"/>
+     <button onClick={send} disabled={!txt.trim()} className="text-[#0095f6] font-semibold text-sm disabled:opacity-40">Post</button>
+    </div>
+   </div>
+  </div>
+  {sh&&<div className='absolute inset-0 z-50 flex items-center justify-center bg-black/60' onClick={e=>{e.stopPropagation();setSh(false)}}><div onClick={e=>e.stopPropagation()} className='bg-neutral-900 rounded-xl w-[320px] max-w-[90%] p-4 fade space-y-1'><div className='font-semibold text-center pb-2 border-b border-neutral-800'>Bagikan</div><button className='w-full text-left py-2.5 px-2 hover:bg-neutral-800 rounded flex items-center gap-3' onClick={copy}><L.Link size={18}/>Copy link</button>{navigator.share&&<button className='w-full text-left py-2.5 px-2 hover:bg-neutral-800 rounded flex items-center gap-3' onClick={()=>{navigator.share({title:'detikcom',text:post.slides[0].title,url:link}).catch(()=>{});setSh(false)}}><L.Send size={18}/>Bagikan via...</button>}<button onClick={()=>setSh(false)} className='w-full py-2 text-sm text-neutral-400'>Batal</button></div></div>}
+  {onPrev&&<button onClick={e=>{e.stopPropagation();onPrev()}} className="hidden md:block absolute left-3 top-1/2 bg-white/80 text-black rounded-full p-1"><L.ChevronLeft size={20}/></button>}
+  {onNext&&<button onClick={e=>{e.stopPropagation();onNext()}} className="hidden md:block absolute right-3 top-1/2 bg-white/80 text-black rounded-full p-1"><L.ChevronRight size={20}/></button>}
+ </div>;
+}
+
+const Grid=({posts,onOpen})=><div className='grid grid-cols-3 gap-0.5 sm:gap-1'>{posts.map(p=><button key={p.id} onClick={()=>onOpen(p.id)} className='relative aspect-[3/4] group overflow-hidden'><Slide s={p.slides[0]} small/>{p.slides.length>1&&<L.Layers size={16} className='absolute top-2 left-2'/>}<div className='absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition'/></button>)}</div>;
+const Shell=({title,onClose,children})=><div className='fixed inset-0 md:left-[72px] z-20 bg-black overflow-y-auto fade pb-20 md:pb-0'><div className='max-w-[935px] mx-auto p-4 md:p-8'><div className='flex items-center justify-between mb-4'><h2 className='text-xl font-bold'>{title}</h2><button onClick={onClose} className='p-1 hover:bg-neutral-900 rounded'><L.X/></button></div>{children}</div></div>;
+const Chip=({on,children,...r})=><button {...r} className={'px-3 py-1.5 rounded-lg text-sm whitespace-nowrap transition '+(on?'bg-white text-black':'bg-neutral-800 hover:bg-neutral-700')}>{children}</button>;
+function Explore({posts,onOpen,onClose}){
+ const cats=['Semua',...new Set(posts.map(p=>p.tag))];const [c,setC]=useState('Semua');
+ const list=posts.filter(p=>c==='Semua'||p.tag===c).sort((a,b)=>b.likes-a.likes);
+ return <Shell title='Explore' onClose={onClose}><div className='flex gap-2 overflow-x-auto pb-3'>{cats.map(x=><Chip key={x} on={c===x} onClick={()=>setC(x)}>{x}</Chip>)}</div><Grid posts={list} onOpen={onOpen}/></Shell>;
+}
+function Search({posts,onOpen,onClose}){
+ const [q,setQ]=useState('');const s=q.trim().toLowerCase();
+ const res=s?posts.filter(p=>('detikcom '+p.tag+' '+p.caption+' '+p.slides.map(x=>x.title).join(' ')).toLowerCase().includes(s)):[];
+ return <Shell title='Search' onClose={onClose}>
+  <div className='flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2'><L.Search size={18} className='text-neutral-400'/><input autoFocus value={q} onChange={e=>setQ(e.target.value)} placeholder='Cari caption, username, kategori' className='flex-1 bg-transparent outline-none text-sm'/>{q&&<button onClick={()=>setQ('')}><L.X size={16}/></button>}</div>
+  {!s?<div className='mt-5'><div className='text-sm font-semibold mb-2'>Kategori populer</div><div className='flex flex-wrap gap-2'>{[...new Set(posts.map(p=>p.tag))].map(t=><Chip key={t} onClick={()=>setQ(t)}>{t}</Chip>)}</div></div>
+  :res.length===0?<div className='text-center text-neutral-500 py-16 text-sm'>Tidak ada hasil untuk "{q}".</div>
+  :<div className='mt-3'>{res.map(p=><button key={p.id} onClick={()=>onOpen(p.id)} className='w-full flex items-center gap-3 p-2 hover:bg-neutral-900 rounded-lg text-left'><div className='w-14 h-[74px] shrink-0 overflow-hidden rounded'><Slide s={p.slides[0]} small/></div><div className='min-w-0'><div className='text-sm font-semibold'>detikcom <span className='text-neutral-500 font-normal'>· {p.tag}</span></div><div className='text-xs text-neutral-400 line-clamp-2'>{p.slides[0].title}</div></div></button>)}</div>}
+ </Shell>;
+}
+function Notifs({posts,store,onOpen,onClose}){
+ const items=[...posts.filter(p=>store.liked[p.id]).map(p=>[p,'Kamu menyukai postingan detikcom']),...posts.filter(p=>(store.added[p.id]||[]).length).map(p=>[p,'Kamu berkomentar di postingan detikcom'])];
+ return <Shell title='Notifications' onClose={onClose}>{store.following&&<div className='py-3 text-sm border-b border-neutral-900'>Kamu mulai mengikuti <b>detikcom</b>.</div>}
+  {items.length===0&&!store.following?<div className='text-center text-neutral-500 py-16 text-sm'>Belum ada aktivitas. Coba like atau komentar sebuah postingan.</div>:items.map(([p,t],i)=><button key={i} onClick={()=>onOpen(p.id)} className='w-full flex items-center gap-3 p-2 hover:bg-neutral-900 rounded-lg text-left'><div className='w-11 h-14 shrink-0 overflow-hidden rounded'><Slide s={p.slides[0]} small/></div><div className='text-sm'>{t}: <span className='text-neutral-400'>{p.slides[0].title.slice(0,50)}</span></div></button>)}</Shell>;
+}
+function Msgs({store,setStore,onClose}){
+ const [v,setV]=useState('');const m=store.msgs||[];
+ const add=x=>setStore(s=>({...s,msgs:[...(s.msgs||[]),x]}));
+ const send=()=>{const t=v.trim();if(!t)return;add({me:1,t});setV('');setTimeout(()=>add({me:0,t:'Terima kasih sudah menghubungi detikcom! Ini balasan otomatis.'}),800)};
+ return <Shell title='Messages' onClose={onClose}><div className='flex items-center gap-3 pb-3 border-b border-neutral-800'><Avatar s={40}/><div className='font-semibold text-sm'>detikcom <Verified/></div></div>
+  <div className='py-4 space-y-2 min-h-[40vh]'>{m.length===0&&<div className='text-center text-neutral-500 text-sm pt-10'>Mulai percakapan dengan detikcom.</div>}{m.map((x,i)=><div key={i} className={'flex '+(x.me?'justify-end':'')}><div className={'px-3 py-2 rounded-2xl text-sm max-w-[75%] '+(x.me?'bg-[#3797f0]':'bg-neutral-800')}>{x.t}</div></div>)}</div>
+  <div className='flex gap-2 border border-neutral-700 rounded-full px-4 py-2'><input value={v} onChange={e=>setV(e.target.value)} onKeyDown={e=>e.key==='Enter'&&send()} placeholder='Message...' className='flex-1 bg-transparent outline-none text-sm'/><button onClick={send} disabled={!v.trim()} className='text-[#0095f6] font-semibold text-sm disabled:opacity-40'>Send</button></div></Shell>;
+}
+function Create({onCreate,onClose}){
+ const [t,setT]=useState(''),[tag,setTag]=useState('NASIONAL'),[cap,setCap]=useState('');
+ const go=()=>{if(!t.trim())return;onCreate({id:Date.now(),tag,likes:0,slides:[{title:t.trim(),tag,k:0,c:PAL[0]}],caption:cap.trim()||t.trim(),comments:[]})};
+ return <Shell title='Create Post' onClose={onClose}><div className='max-w-md space-y-3'><input value={t} onChange={e=>setT(e.target.value)} placeholder='Judul berita' className='w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none'/><select value={tag} onChange={e=>setTag(e.target.value)} className='w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm'>{Object.keys(KIND).map(k=><option key={k}>{k}</option>)}</select><textarea value={cap} onChange={e=>setCap(e.target.value)} rows={3} placeholder='Caption' className='w-full bg-neutral-900 border border-neutral-700 rounded-lg px-3 py-2 text-sm outline-none'/><button onClick={go} disabled={!t.trim()} className='bg-[#0095f6] hover:bg-[#1877f2] disabled:opacity-40 px-5 py-2 rounded-lg text-sm font-semibold'>Bagikan</button></div></Shell>;
+}
+function More({onSaved,onReset,onClose}){
+ return <Shell title='More' onClose={onClose}><div className='max-w-sm space-y-1'><button onClick={onSaved} className='w-full text-left p-3 hover:bg-neutral-900 rounded-lg flex gap-3'><L.Bookmark size={20}/>Saved</button><button onClick={onReset} className='w-full text-left p-3 hover:bg-neutral-900 rounded-lg flex gap-3 text-red-400'><L.X size={20}/>Reset semua data</button></div></Shell>;
+}
+function App(){
+ const [store,setStore]=useStore();
+ const [tab,setTab]=useState("posts"),[open,setOpen]=useState(null),[story,setStory]=useState(null),[page,setPage]=useState("Profile"),[note,setNote]=useState("");
+ const [unf,setUnf]=useState(false),[ld,setLd]=useState(true);
+ useEffect(()=>{const t=setTimeout(()=>setLd(false),700);return()=>clearTimeout(t)},[]);
+ const ALL=[...(store.custom||[]),...POSTS];
+ const toast=m=>{setNote(m);setTimeout(()=>setNote(''),1800)};
+ const follow=()=>store.following?setUnf(true):(setStore(s=>({...s,following:true})),toast('Kamu mengikuti detikcom'));
+ const go=n=>{if(n==='Home'||n==='Profile'){setPage('Profile');window.scrollTo({top:0,behavior:'smooth'})}else if(n==='Reels'){setPage('Profile');setTab('reels')}else setPage(n)};
+ const back=()=>setPage('Profile');
+ const list=tab==='posts'?ALL:tab==='reels'?ALL.filter((_,i)=>i%2===0):tab==='saved'?ALL.filter(p=>store.saved[p.id]):[];
+ const idx=open?ALL.findIndex(p=>p.id===open):-1;
+ const fol=PROFILE.followers+(store.following?1:0);
+ const tabs=[['posts',L.Grid3x3],['reels',L.Clapperboard],['saved',L.Bookmark],['tagged',L.UserSquare]];
+ return <div className="min-h-screen">
+  <Sidebar go={go} page={page}/>
+  <main className="md:ml-[72px] pb-24 md:pb-10 max-w-[935px] mx-auto px-4 md:px-5 pt-6 md:pt-10">
+   <header className="flex flex-col sm:flex-row gap-6 sm:gap-20 sm:pl-10 items-center sm:items-start">
+    <div className="sm:mr-0"><Avatar s={window.innerWidth<640?96:150}/></div>
+    <div className="flex-1 min-w-0 w-full">
+     <div className="flex flex-wrap items-center gap-3">
+      <h1 className="text-xl font-normal flex items-center gap-1.5">{PROFILE.username}<Verified s={18}/></h1><L.MoreHorizontal size={20}/>
+     </div>
+     <div className="flex gap-2 mt-4">
+      <button onClick={follow} className={"flex-1 max-w-[150px] py-1.5 rounded-lg text-sm font-semibold transition "+(store.following?"bg-neutral-800 hover:bg-neutral-700":"bg-[#0095f6] hover:bg-[#1877f2]")}>{store.following?"Following":"Follow"}</button>
+      <button onClick={()=>setPage('Messages')} className="flex-1 max-w-[150px] py-1.5 rounded-lg text-sm font-semibold bg-neutral-800 hover:bg-neutral-700">Message</button>
+      <button title='Temukan akun & berita' onClick={()=>setPage('Explore')} className="px-3 rounded-lg bg-neutral-800 hover:bg-neutral-700"><L.UserPlus size={16}/></button>
+     </div>
+     <div className="flex gap-8 mt-5 text-sm"><span><b>{PROFILE.posts}</b> posts</span><span><b>{fmt(fol)}</b> followers</span><span><b>{PROFILE.following}</b> following</span></div>
+     <div className="mt-4 text-sm"><div className="text-neutral-400 text-xs">{PROFILE.cat}</div><div className="whitespace-pre-line">{PROFILE.bio}</div>
+      <div className="mt-2 flex gap-4 font-semibold text-[#e0f1ff]"><span className="flex items-center gap-1"><L.Link size={13}/>{PROFILE.link}</span><span className="flex items-center gap-1"><L.Globe size={13}/>{PROFILE.web}</span></div>
+      <div className="mt-3 text-xs text-neutral-400">Followed by {PROFILE.followedBy}</div></div>
+    </div>
+   </header>
+   <section className="flex gap-4 sm:gap-8 mt-10 sm:pl-10 overflow-x-auto pb-2">
+    {HL.map((h,i)=><button key={h} onClick={()=>setStory(i)} className="flex flex-col items-center gap-2 shrink-0 group">
+     <div className="w-[77px] h-[77px] rounded-full border border-neutral-600 p-[3px] group-hover:border-neutral-300 group-hover:scale-105 transition"><div className="relative w-full h-full rounded-full overflow-hidden"><Scene kind={HS[i][0][0]} k={0}/><div className="absolute inset-0 bg-black/25 flex items-center justify-center">{React.createElement([L.Tv,L.ShoppingCart,L.Users,L.Megaphone,L.Tag][i],{size:28})}</div></div></div>
+     <span className="text-xs">{h}</span></button>)}
+   </section>
+   <div className="border-t border-neutral-800 mt-8 flex justify-center gap-14">
+    {tabs.map(([k,I])=><button key={k} onClick={()=>setTab(k)} title={k} className={"py-4 border-t -mt-px transition "+(tab===k?"border-white text-white":"border-transparent text-neutral-500")}><I size={20}/></button>)}
+   </div>
+   {ld?<div className='grid grid-cols-3 gap-0.5 sm:gap-1'>{Array.from({length:9}).map((_,i)=><div key={i} className='aspect-[3/4] bg-neutral-900 animate-pulse'/>)}</div>:list.length===0?<div className="text-center text-neutral-500 py-20 text-sm">{tab==='saved'?'Belum ada postingan tersimpan. Klik ikon bookmark di postingan.':'Belum ada postingan yang ditandai.'}</div>:
+   <div className="grid grid-cols-3 gap-0.5 sm:gap-1 fade" key={tab}>
+    {list.map(p=><button key={p.id} onClick={()=>setOpen(p.id)} className="relative aspect-[3/4] group overflow-hidden">
+     <Slide s={p.slides[0]} small/>
+     {p.slides.length>1&&<L.Layers size={16} className="absolute top-2 left-2 drop-shadow"/>}
+     {tab==="reels"&&<L.Play size={16} fill="#fff" className="absolute top-2 left-2"/>}
+     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-5 text-sm font-bold">
+      <span className="flex items-center gap-1"><L.Heart size={18} fill="#fff"/>{fmt(p.likes+(store.liked[p.id]?1:0))}</span>
+      <span className="flex items-center gap-1"><L.MessageCircle size={18} fill="#fff"/>{p.comments.length+(store.added[p.id]||[]).length}</span></div>
+    </button>)}
+   </div>}
+  </main>
+  {page==='Explore'&&<Explore posts={ALL} onOpen={setOpen} onClose={back}/>}
+  {page==='Search'&&<Search posts={ALL} onOpen={setOpen} onClose={back}/>}
+  {page==='Notifications'&&<Notifs posts={ALL} store={store} onOpen={setOpen} onClose={back}/>}
+  {page==='Messages'&&<Msgs store={store} setStore={setStore} onClose={back}/>}
+  {page==='Create'&&<Create onClose={back} onCreate={c=>{setStore(s=>({...s,custom:[c,...(s.custom||[])]}));setTab('posts');back();toast('Postingan dibuat')}}/>}
+  {page==='More'&&<More onClose={back} onSaved={()=>{setTab('saved');back()}} onReset={()=>{setStore({following:false,liked:{},saved:{},added:{},cliked:{},custom:[],msgs:[]});back();toast('Data direset')}}/>}
+  {open&&idx>=0&&<Modal post={ALL[idx]} store={store} setStore={setStore} onFollow={follow} onClose={()=>setOpen(null)} onPrev={idx>0?()=>setOpen(ALL[idx-1].id):null} onNext={idx<ALL.length-1?()=>setOpen(ALL[idx+1].id):null}/>}
+  {unf&&<div className='fixed inset-0 z-[60] bg-black/70 flex items-center justify-center fade' onClick={()=>setUnf(false)}><div onClick={e=>e.stopPropagation()} className='bg-neutral-900 rounded-xl w-[320px] max-w-[90%] text-center overflow-hidden'><div className='p-6'><Avatar s={64}/><div className='mt-3 text-sm'>Unfollow <b>detikcom</b>?</div></div><button onClick={()=>{setStore(s=>({...s,following:false}));setUnf(false);toast('Kamu berhenti mengikuti detikcom')}} className='w-full py-3 border-t border-neutral-800 text-red-500 font-semibold text-sm hover:bg-neutral-800'>Unfollow</button><button onClick={()=>setUnf(false)} className='w-full py-3 border-t border-neutral-800 text-sm hover:bg-neutral-800'>Batal</button></div></div>}
+  {story!==null&&<Stories idx={story} onClose={()=>setStory(null)}/>}
+  {note&&<div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-neutral-800 px-4 py-2 rounded-lg text-sm fade">{note}</div>}
+ </div>;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
